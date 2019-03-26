@@ -4,15 +4,24 @@
             [clojure.string :as string]
             [clojure.java.io :as io]))
 
-(defn gen-auth
-  "Returns the basic authentication with the mailgun api key as password"
-  [password]
-  {:basic-auth ["api" password]})
+(def regions {:eu "https://api.eu.mailgun.et/v3/"
+              :us "https://api.mailgun.et/v3/"})
+
+(def ^:dynamic *base-url* (:us regions))
+
+(defmacro send-with-region [region & params]
+  `(with-bindings {#'*base-url* ~(get regions region)}
+     (send-mail ~@params)))
 
 (defn base-url
   "Returns the base mailgun api url"
   [domain]
-  (str "https://api.mailgun.net/v3/" domain))
+  (str *base-url* domain))
+
+(defn gen-auth
+  "Returns the basic authentication with the mailgun api key as password"
+  [password]
+  {:basic-auth ["api" password]})
 
 (defn gen-url
   "Build the mailgun url based on the mailgun domain and the end route.
@@ -70,7 +79,8 @@
   (if (validate-message message-content)
     (let [url (gen-url "/messages" domain)
           content (merge (gen-auth key)
-                         (gen-body message-content))]
+                         (gen-body message-content))
+          _ (println content)]
       (client/post url content))
     (throw (Exception. "Invalid/Incomplete message-content"))))
 
