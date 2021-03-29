@@ -4,8 +4,8 @@
             [clojure.string :as string]
             [clojure.java.io :as io]))
 
-(def regions {:eu "https://api.eu.mailgun.et/v3/"
-              :us "https://api.mailgun.et/v3/"})
+(def regions {:eu "https://api.eu.mailgun.net/v3/"
+              :us "https://api.mailgun.net/v3/"})
 
 (def ^:dynamic *base-url* (:us regions))
 
